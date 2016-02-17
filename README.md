@@ -1,5 +1,5 @@
 # Basic Auto Project
-Project which contains basic automation test structure
+Project which searches for 10 of the most recent QA positions posted to craigslist.
 
 - Java
 - TestNG
