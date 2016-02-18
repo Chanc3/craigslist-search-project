@@ -16,6 +16,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import junit.framework.Assert;
@@ -44,6 +45,12 @@ public class CraigslistTest {
 		driver = new FirefoxDriver();
 		baseUrl = "http://sfbay.craigslist.org/";
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+	}
+
+	@DataProvider
+	public Object[][] searchData() {
+		return new Object[][] { new Object[] { "Test 1", new String[] { "QA ", "Analyst " } },
+				new Object[] { "Test 1", new String[] { "iOS ", "Developer " } }, };
 	}
 
 	@BeforeClass(alwaysRun = true)
@@ -87,14 +94,15 @@ public class CraigslistTest {
 		Assert.assertEquals("IMPORTANT - FURTHER ACTION IS REQUIRED TO COMPLETE YOUR REQUEST !!!", finished.getText());
 	}
 
-	@Test
-	public void testSearch1() throws Exception {
+	@Test(dataProvider = "searchData")
+	public void testSearch(String label, String[] keywords) throws Exception {
 		driver.get(baseUrl + "/");
 		driver.findElement(By.cssSelector("a.sof > span.txt")).click();
 		driver.findElement(By.id("query")).clear();
-		driver.findElement(By.id("query")).sendKeys("Android Developer");
+		driver.findElement(By.id("query")).sendKeys(keywords);
 		driver.findElement(By.xpath("//button[@type='submit']")).click();
-		List<WebElement> links = driver.findElements(By.partialLinkText("Android"));
+		List<WebElement> links = driver.findElements(By.partialLinkText(keywords[0]));
+		System.out.println(label);
 		System.out.println("10 most recent job postings:");
 		for (int i = 0; i < 10; i++) {
 			System.out
