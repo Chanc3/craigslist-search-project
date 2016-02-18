@@ -1,0 +1,139 @@
+package com.sqa.cs.qa.search;
+
+import static org.testng.Assert.fail;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.NoAlertPresentException;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import junit.framework.Assert;
+
+public class CraigslistTest {
+
+	private WebDriver driver;
+
+	private String baseUrl;
+
+	private boolean acceptNextAlert = true;
+
+	private StringBuffer verificationErrors = new StringBuffer();
+
+	@AfterTest
+	public void afterTest() {
+		driver.quit();
+		String verificationErrorString = verificationErrors.toString();
+		if (!"".equals(verificationErrorString)) {
+			fail(verificationErrorString);
+		}
+	}
+
+	@BeforeTest
+	public void beforeTest() {
+		driver = new FirefoxDriver();
+		baseUrl = "http://sfbay.craigslist.org/";
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+	}
+
+	@BeforeClass(alwaysRun = true)
+	public void setUp() throws Exception {
+		driver = new FirefoxDriver();
+		baseUrl = "http://sfbay.craigslist.org/";
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+	}
+
+	@AfterClass(alwaysRun = true)
+	public void tearDown() throws Exception {
+		driver.quit();
+		String verificationErrorString = verificationErrors.toString();
+		if (!"".equals(verificationErrorString)) {
+			fail(verificationErrorString);
+		}
+	}
+
+	@Test
+	public void testPost() throws Exception {
+		driver.get(baseUrl + "/");
+		driver.findElement(By.cssSelector("#postlks > li > #post")).click();
+		driver.findElement(By.xpath("(//input[@name='id'])[3]")).click();
+		driver.findElement(By.name("id")).click();
+		driver.findElement(By.name("n")).click();
+		driver.findElement(By.xpath("(//input[@name='n'])[38]")).click();
+		driver.findElement(By.id("FromEMail")).clear();
+		driver.findElement(By.id("FromEMail")).sendKeys("chanceshiflett@yahoo.com");
+		driver.findElement(By.id("ConfirmEMail")).clear();
+		driver.findElement(By.id("ConfirmEMail")).sendKeys("chanceshiflett@yahoo.com");
+		driver.findElement(By.id("PostingTitle")).clear();
+		driver.findElement(By.id("PostingTitle")).sendKeys("testing");
+		driver.findElement(By.id("postal_code")).clear();
+		driver.findElement(By.id("postal_code")).sendKeys("94577");
+		driver.findElement(By.id("PostingBody")).clear();
+		driver.findElement(By.id("PostingBody")).sendKeys("testing craigslist post");
+		driver.findElement(By.name("go")).click();
+		driver.findElement(By.cssSelector("section.body > form > button[name=\"go\"]")).click();
+		driver.findElement(By.cssSelector("#publish_bottom > button[name=\"go\"]")).click();
+		WebElement finished = driver.findElement(By.tagName("em"));
+		Assert.assertEquals("IMPORTANT - FURTHER ACTION IS REQUIRED TO COMPLETE YOUR REQUEST !!!", finished.getText());
+	}
+
+	@Test
+	public void testSearch1() throws Exception {
+		driver.get(baseUrl + "/");
+		driver.findElement(By.cssSelector("a.sof > span.txt")).click();
+		driver.findElement(By.id("query")).clear();
+		driver.findElement(By.id("query")).sendKeys("Android Developer");
+		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		List<WebElement> links = driver.findElements(By.partialLinkText("Android"));
+		System.out.println("10 most recent job postings:");
+		for (int i = 0; i < 10; i++) {
+			System.out
+					.println("(" + (i + 1) + ") " + links.get(i).getText() + " : " + links.get(i).getAttribute("href"));
+		}
+		System.out.println("");
+		Assert.assertTrue("A minimum of 10 positions could not be found.", 10 <= links.size());
+	}
+
+	private String closeAlertAndGetItsText() {
+		try {
+			Alert alert = driver.switchTo().alert();
+			String alertText = alert.getText();
+			if (acceptNextAlert) {
+				alert.accept();
+			} else {
+				alert.dismiss();
+			}
+			return alertText;
+		} finally {
+			acceptNextAlert = true;
+		}
+	}
+
+	private boolean isAlertPresent() {
+		try {
+			driver.switchTo().alert();
+			return true;
+		} catch (NoAlertPresentException e) {
+			return false;
+		}
+	}
+
+	private boolean isElementPresent(By by) {
+		try {
+			driver.findElement(by);
+			return true;
+		} catch (NoSuchElementException e) {
+			return false;
+		}
+	}
+}
